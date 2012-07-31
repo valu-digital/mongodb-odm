@@ -29,6 +29,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $cm->setDiscriminatorField(array('name' => 'disc'));
         $cm->mapOneEmbedded(array('fieldName' => 'phonenumbers', 'targetDocument' => 'Bar'));
         $cm->setFile('customFileProperty');
+        $cm->setSlaveOkay(true);
         $this->assertTrue(is_array($cm->getFieldMapping('phonenumbers')));
         $this->assertEquals(1, count($cm->fieldMappings));
 
@@ -48,6 +49,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $this->assertTrue(is_array($cm->getFieldMapping('phonenumbers')));
         $this->assertEquals(1, count($cm->fieldMappings));
         $this->assertEquals('customFileProperty', $cm->file);
+        $this->assertTrue($cm->slaveOkay);
         $mapping = $cm->getFieldMapping('phonenumbers');
         $this->assertEquals('Documents\Bar', $mapping['targetDocument']);
     }
@@ -95,7 +97,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
 
         $this->assertEquals("DoctrineGlobal_User", $cm->fieldMappings['author']['targetDocument']);
     }
-    
+
     public function testMapManyToManyJoinTableDefaults()
     {
         $cm = new ClassMetadata('Documents\CmsUser');
@@ -104,7 +106,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
             'fieldName' => 'groups',
             'targetDocument' => 'CmsGroup'
         ));
-        
+
         $assoc = $cm->fieldMappings['groups'];
         $this->assertTrue(is_array($assoc));
     }
@@ -143,7 +145,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $a2 = array('reference' => true, 'type' => 'many', 'fieldName' => 'foo', 'targetDocument' => 'stdClass');
 
         $cm->mapField($a1);
-        $this->setExpectedException('Doctrine\ODM\MongoDB\MongoDBException');
+        $this->setExpectedException('Doctrine\ODM\MongoDB\Mapping\MappingException');
         $cm->mapField($a2);
     }
 
@@ -152,7 +154,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $cm = new ClassMetadata('Documents\CmsUser');
         $cm->mapField(array('fieldName' => 'name'));
 
-        $this->setExpectedException('Doctrine\ODM\MongoDB\MongoDBException');
+        $this->setExpectedException('Doctrine\ODM\MongoDB\Mapping\MappingException');
         $cm->setDiscriminatorField(array('name' => 'name'));
     }
 
@@ -161,7 +163,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $cm = new ClassMetadata('Documents\CmsUser');
         $cm->setDiscriminatorField(array('name' => 'name'));
 
-        $this->setExpectedException('Doctrine\ODM\MongoDB\MongoDBException');
+        $this->setExpectedException('Doctrine\ODM\MongoDB\Mapping\MappingException');
         $cm->mapField(array('fieldName' => 'name'));
     }
 
@@ -170,7 +172,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $cm = new ClassMetadata('Documents\CmsUser');
         $cm->mapField(array('fieldName' => 'name'));
 
-        $this->setExpectedException('Doctrine\ODM\MongoDB\MongoDBException');
+        $this->setExpectedException('Doctrine\ODM\MongoDB\Mapping\MappingException');
         $cm->mapOneEmbedded(array('fieldName' => 'name', 'targetDocument' => 'CmsUser'));
     }
 
@@ -179,7 +181,7 @@ class ClassMetadataTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $cm = new ClassMetadata('Documents\CmsUser');
         $cm->mapOneEmbedded(array('fieldName' => 'name', 'targetDocument' => 'CmsUser'));
 
-        $this->setExpectedException('Doctrine\ODM\MongoDB\MongoDBException');
+        $this->setExpectedException('Doctrine\ODM\MongoDB\Mapping\MappingException');
         $cm->mapField(array('fieldName' => 'name', 'columnName' => 'name'));
     }
 }

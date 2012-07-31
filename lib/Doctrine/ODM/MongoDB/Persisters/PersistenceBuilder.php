@@ -126,7 +126,7 @@ class PersistenceBuilder
                 } elseif (isset($mapping['association']) && $mapping['association'] === ClassMetadata::REFERENCE_MANY) {
                     $value = array();
                     foreach ($new as $reference) {
-                        $value[] = $this->prepareReferenceDocValue($mapping, $reference);
+                        $value[] = $this->prepareReferencedDocumentValue($mapping, $reference);
                     }
 
                 // @EmbedMany
@@ -346,6 +346,11 @@ class PersistenceBuilder
         $class = $this->dm->getClassMetadata($className);
         $embeddedDocumentValue = array();
         foreach ($class->fieldMappings as $mapping) {
+            // Skip not saved fields
+            if (isset($mapping['notSaved']) && $mapping['notSaved'] === true) {
+                continue;
+            }
+
             $rawValue = $class->reflFields[$mapping['fieldName']]->getValue($embeddedDocument);
 
             // Generate a document identifier
@@ -366,8 +371,11 @@ class PersistenceBuilder
 
                 /** @EmbedMany */
                 } elseif (isset($mapping['association']) && $mapping['association'] == ClassMetadata::EMBED_MANY) {
-                    // do nothing for embedded many
-                    // CollectionPersister will take care of this
+                    if ($mapping['strategy'] !== 'set') {
+                        foreach ($rawValue as $key => $item) {
+                            $value[$key] = $this->prepareEmbeddedDocumentValue($mapping, $item);
+                        }
+                    }
 
                 /** @ReferenceOne */
                 } elseif (isset($mapping['association']) && $mapping['association'] == ClassMetadata::REFERENCE_ONE) {
@@ -388,7 +396,7 @@ class PersistenceBuilder
             $embeddedDocumentValue[$mapping['name']] = $value;
         }
 
-        // Store a discriminator value if the embedded document is not mapped explicitely to a targetDocument
+        // Store a discriminator value if the embedded document is not mapped explicitly to a targetDocument
         if ( ! isset($embeddedMapping['targetDocument'])) {
             $discriminatorField = isset($embeddedMapping['discriminatorField']) ? $embeddedMapping['discriminatorField'] : '_doctrine_class_name';
             $discriminatorValue = isset($embeddedMapping['discriminatorMap']) ? array_search($class->getName(), $embeddedMapping['discriminatorMap']) : $class->getName();
@@ -400,7 +408,7 @@ class PersistenceBuilder
             return (object) $embeddedDocumentValue;
         }
 
-        if ($class->discriminatorField) {
+        if ($class->hasDiscriminator()) {
             $embeddedDocumentValue[$class->discriminatorField['name']] = $class->discriminatorValue;
         }
 

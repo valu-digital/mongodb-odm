@@ -17,43 +17,37 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\MongoDB\Mapping\Driver;
-
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadataInfo;
+namespace Doctrine\ODM\MongoDB\Mapping\Types;
 
 /**
- * Contract for metadata drivers.
+ * Raw data type.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.org
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
+ * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
-interface Driver
+class RawType extends Type
 {
-    /**
-     * Loads the metadata for the specified class into the provided container.
-     * 
-     * @param string $className
-     * @param ClassMetadataInfoInfo $metadata
-     */
-    function loadMetadataForClass($className, ClassMetadataInfo $metadata);
-    
-    /**
-     * Gets the names of all mapped classes known to this driver.
-     * 
-     * @return array The names of all mapped classes known to this driver.
-     */
-    function getAllClassNames(); 
+    public function convertToDatabaseValue($value)
+    {
+        return $value;
+    }
 
-    /**
-     * Whether the class with the specified name should have its metadata loaded.
-     * This is only the case if it is either mapped as an Document or a
-     * MappedSuperclass.
-     *
-     * @param string $className
-     * @return boolean
-     */
-    function isTransient($className);
+    public function convertToPHPValue($value)
+    {
+        return $value;
+    }
+
+    public function closureToMongo()
+    {
+        return '$return = $value;';
+    }
+
+    public function closureToPHP()
+    {
+        return '$return = $value;';
+    }
 }

@@ -19,7 +19,7 @@
 
 namespace Doctrine\ODM\MongoDB\Mapping\Types;
 
-use Doctrine\ODM\MongoDB\MongoDBException;
+use Doctrine\ODM\MongoDB\Mapping\MappingException;
 
 /**
  * The Type interface.
@@ -54,7 +54,8 @@ abstract class Type
         'hash' => 'Doctrine\ODM\MongoDB\Mapping\Types\HashType',
         'collection' => 'Doctrine\ODM\MongoDB\Mapping\Types\CollectionType',
         'increment' => 'Doctrine\ODM\MongoDB\Mapping\Types\IncrementType',
-        'object_id' => 'Doctrine\ODM\MongoDB\Mapping\Types\ObjectIdType'
+        'object_id' => 'Doctrine\ODM\MongoDB\Mapping\Types\ObjectIdType',
+        'raw' => 'Doctrine\ODM\MongoDB\Mapping\Types\RawType'
     );
 
     /**
@@ -129,7 +130,7 @@ abstract class Type
     /**
      * Get a Type instance based on the type of the passed php variable.
      *
-     * @param mixed $variable 
+     * @param mixed $variable
      * @return Doctrine\ODM\MongoDB\Mapping\Types\Type $type
      * @throws InvalidArgumentException
      */
@@ -166,12 +167,12 @@ abstract class Type
      * @static
      * @param string $name Name of the type. This should correspond to what getName() returns.
      * @param string $className The class name of the custom type.
-     * @throws MongoDBException
+     * @throws MappingException
      */
     public static function addType($name, $className)
     {
         if (isset(self::$typesMap[$name])) {
-            throw MongoDBException::typeExists($name);
+            throw MappingException::typeExists($name);
         }
 
         self::$typesMap[$name] = $className;
@@ -195,12 +196,12 @@ abstract class Type
      * @static
      * @param string $name
      * @param string $className
-     * @throws MongoDBException
+     * @throws MappingException
      */
     public static function overrideType($name, $className)
     {
         if ( ! isset(self::$typesMap[$name])) {
-            throw MongoDBException::typeNotFound($name);
+            throw MappingException::typeNotFound($name);
         }
 
         self::$typesMap[$name] = $className;
