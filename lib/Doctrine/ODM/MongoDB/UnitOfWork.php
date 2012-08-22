@@ -1,7 +1,5 @@
 <?php
 /*
- * THIS SOFTWARE IS PROVIDED BY THE <?php
-/*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -21,29 +19,28 @@
 
 namespace Doctrine\ODM\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\ODM\MongoDB\Internal\CommitOrderCalculator,
-    Doctrine\ODM\MongoDB\Mapping\ClassMetadata,
-    Doctrine\ODM\MongoDB\Proxy\Proxy,
-    Doctrine\ODM\MongoDB\Mapping\Types\Type,
-    Doctrine\ODM\MongoDB\Event\LifecycleEventArgs,
-    Doctrine\ODM\MongoDB\Event\PreLoadEventArgs,
-    Doctrine\ODM\MongoDB\PersistentCollection,
-    Doctrine\ODM\MongoDB\Persisters\PersistenceBuilder,
-    Doctrine\Common\Collections\Collection,
-    Doctrine\Common\NotifyPropertyChanged,
-    Doctrine\Common\PropertyChangedListener,
-    Doctrine\Common\Collections\ArrayCollection,
-    Doctrine\MongoDB\GridFSFile,
-    Doctrine\ODM\MongoDB\Query\Query,
-    Doctrine\ODM\MongoDB\Hydrator\HydratorFactory;
+use Doctrine\Common\EventManager;
+use Doctrine\ODM\MongoDB\Internal\CommitOrderCalculator;
+use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
+use Doctrine\ODM\MongoDB\Proxy\Proxy;
+use Doctrine\ODM\MongoDB\Mapping\Types\Type;
+use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
+use Doctrine\ODM\MongoDB\Event\PreLoadEventArgs;
+use Doctrine\ODM\MongoDB\PersistentCollection;
+use Doctrine\ODM\MongoDB\Persisters\PersistenceBuilder;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\NotifyPropertyChanged;
+use Doctrine\Common\PropertyChangedListener;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\MongoDB\GridFSFile;
+use Doctrine\ODM\MongoDB\Query\Query;
+use Doctrine\ODM\MongoDB\Hydrator\HydratorFactory;
 
 /**
  * The UnitOfWork is responsible for tracking changes to objects during an
  * "object-level" transaction and for writing out changes to the database
  * in the correct order.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Roman Borschel <roman@code-factory.org>
@@ -848,7 +845,7 @@ class UnitOfWork implements PropertyChangedListener
      */
     private function computeAssociationChanges($parentDocument, $mapping, $value)
     {
-        $isNewParentDocument = in_array($parentDocument,$this->documentInsertions,true);
+        $isNewParentDocument = isset($this->documentInsertions[spl_object_hash($parentDocument)]);
         $class = $this->dm->getClassMetadata(get_class($parentDocument));
         $topOrExistingDocument = (!$isNewParentDocument || !$class->isEmbeddedDocument);
 
