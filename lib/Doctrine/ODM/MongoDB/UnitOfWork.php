@@ -741,9 +741,15 @@ class UnitOfWork implements PropertyChangedListener
                     continue;
                 }
 
-                // skip equivalent DateTime values
-                if (($orgValue instanceof \DateTime || $actualValue instanceof \DateTime) && $orgValue == $actualValue) {
-                    continue;
+                // skip equivalent date values
+                if ($class->fieldMappings[$propName]['type'] === 'date') {
+                    $dateType = Type::getType('date');
+                    $dbOrgValue = $dateType->convertToDatabaseValue($orgValue);
+                    $dbActualValue = $dateType->convertToDatabaseValue($actualValue);
+
+                    if ($dbOrgValue instanceof \MongoDate && $dbActualValue instanceof \MongoDate && $dbOrgValue == $dbActualValue) {
+                        continue;
+                    }
                 }
 
                 // regular field
@@ -2088,7 +2094,8 @@ class UnitOfWork implements PropertyChangedListener
                 $this->removeFromIdentityMap($document);
                 unset($this->documentInsertions[$oid], $this->documentUpdates[$oid],
                         $this->documentDeletions[$oid], $this->documentIdentifiers[$oid],
-                        $this->documentStates[$oid], $this->originalDocumentData[$oid]);
+                        $this->documentStates[$oid], $this->originalDocumentData[$oid],
+                        $this->parentAssociations[$oid]);
                 break;
             case self::STATE_NEW:
             case self::STATE_DETACHED:
